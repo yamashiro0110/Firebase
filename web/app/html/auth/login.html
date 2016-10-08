@@ -1,0 +1,117 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Chrome for Android theme color -->
+    <meta name="theme-color" content="#2E3AA1">
+    <!-- Web Application Manifest -->
+    <link rel="manifest" href="manifest.json">
+    <!-- Tile color for Win8 -->
+    <meta name="msapplication-TileColor" content="#3372DF">
+    <!-- Add to homescreen for Chrome on Android -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="PSK">
+    <!-- build:css styles/main.css -->
+    <link rel="stylesheet" href="/styles/main.css">
+    <!-- endbuild-->
+    <!-- build:js /bower_components/webcomponentsjs/webcomponents-lite.min.js -->
+    <!-- <script src="/bower_components/webcomponentsjs/webcomponents-lite.js"></script> -->
+    <!-- endbuild -->
+    <!-- Because this project uses vulcanize this should be your only html import
+    in this file. All other imports should go in elements.html -->
+    <!-- <link rel="import" href="elements/elements.html"> -->
+    <!-- For shared styles, shared-styles.html import in elements.html -->
+    <style is="custom-style" include="shared-styles"></style>
+  </head>
+  <body>
+    <h1>ログイン</h1>
+    <hr />
+    <div>
+      name: <span id="name"></span>
+    </div>
+    <div>
+      email: <span id="email"></span>
+    </div>
+    <hr />
+    <p>
+      <a id="googleSignIn" href="#">Googleでログイン</a>
+    </p>
+    <p>
+      <a id="facebookSignIn" href="#">Facebookでログイン</a>
+    </p>
+    <p>
+      <a id="singout" href="#">SignOut</a>
+    </p>
+  </body>
+
+  <script src="https://www.gstatic.com/firebasejs/3.0.2/firebase.js"></script>
+  <script src="https://apis.google.com/js/platform.js" async defer></script>
+  <!-- build:js /script/vendor.js -->
+  <script src="/bower_components/jQuery/dist/jquery.min.js"></script>
+  <!-- endbuild -->
+  <script>
+    $(function() {
+      var email = $('#email');
+      var name = $('#name');
+
+      firebase.initializeApp({
+        apiKey: "AIzaSyCSlxvMkNEwPr5E9PJAIqnSuPQRA3MltT8",
+        authDomain: "sample-firebase-c08bf.firebaseapp.com",
+        databaseURL: "https://sample-firebase-c08bf.firebaseio.com",
+        storageBucket: "sample-firebase-c08bf.appspot.com",
+        messagingSenderId: "442016854371"
+      });
+
+      firebase.auth().onAuthStateChanged(function(user) {
+        if (user) {
+          console.log('現在のログインユーザー', user);
+          name.text(user.displayName);
+          email.text(user.email);
+        } else {
+          console.log('ログインしてないユーザー');
+        }
+      });
+
+      $('#googleSignIn').on({
+        'click': function() {
+          var provider = new firebase.auth.GoogleAuthProvider();
+          showLoginPage(provider);
+        }
+      });
+
+      $('#facebookSignIn').on({
+        'click': function() {
+          var provider = new firebase.auth.FacebookAuthProvider();
+          showLoginPage(provider);
+        }
+      });
+
+      $('#singout').on({
+        'click': function() {
+          firebase.auth().signOut().then(function() {
+            console.log('signoutしました');
+            location.reload(true);
+          }, function(error) {
+            console.log('error signout', error);
+          });
+        }
+      });
+
+      function showLoginPage(provider) {
+        firebase.auth()
+          .signInWithPopup(provider)
+          .then(function(result) {
+            console.log('success OAuth', result);
+            name.text(result.user.displayName);
+            email.text(result.user.email);
+          }).catch(function(error) {
+            console.log('error OAuth', error);
+          });
+      }
+
+    });
+
+  </script>
+</html>
