@@ -1,0 +1,83 @@
+<dom-module id="sample-firebase-login">
+  <template>
+
+    <div class="user-info">
+      <paper-input label="name:" value="{{name}}" readonly></paper-input>
+      <paper-input label="email:" value="{{email}}" readonly></paper-input>
+    </div>
+
+    <div class="sing-in-button">
+      <paper-button raised on-tap="signInWithGoogle">
+        Googleでログイン
+      </paper-button>
+      <paper-button raised on-tap="signInWithFacebook">
+        Facebookでログイン
+      </paper-button>
+      <paper-button raised on-tap="singOut">
+        SignOut
+      </paper-button>
+    </div>
+  </template>
+  <!-- build:js script/vendor.js -->
+  <!-- <script src="/bower_components/jQuery/dist/jquery.min.js"></script> -->
+  <!-- endbuild -->
+  <script>
+    $(function() {
+      Polymer({
+        is: 'sample-firebase-login',
+        properties: {
+          name: String,
+          email: String,
+        },
+        ready: function() {
+          firebase.initializeApp({
+            apiKey: "AIzaSyCSlxvMkNEwPr5E9PJAIqnSuPQRA3MltT8",
+            authDomain: "sample-firebase-c08bf.firebaseapp.com",
+            databaseURL: "https://sample-firebase-c08bf.firebaseio.com",
+            storageBucket: "sample-firebase-c08bf.appspot.com",
+            messagingSenderId: "442016854371"
+          });
+
+          var polymer = this;
+
+          firebase.auth().onAuthStateChanged(function(user) {
+            if (user) {
+              console.log('現在のログインユーザー', user);
+              polymer.name = user.displayName;
+              polymer.email = user.email;
+            } else {
+              console.log('ログインしてないユーザー');
+            }
+          });
+        },
+        signInWithGoogle: function() {
+          var provider = new firebase.auth.GoogleAuthProvider();
+          this.showLoginPage(provider);
+        },
+        signInWithFacebook: function() {
+          var provider = new firebase.auth.FacebookAuthProvider();
+          this.showLoginPage(provider);
+        },
+        singOut: function() {
+          firebase.auth().signOut().then(function() {
+            console.log('signoutしました');
+            location.reload(true);
+          }, function(error) {
+            console.log('error signout', error);
+          });
+        },
+        showLoginPage: function(provider) {
+          firebase.auth()
+            .signInWithPopup(provider)
+            .then(function(result) {
+              console.log('success OAuth', result);
+              name.text(result.user.displayName);
+              email.text(result.user.email);
+            }).catch(function(error) {
+              console.log('error OAuth', error);
+            });
+        }
+      });
+    });
+  </script>
+</dom-module>

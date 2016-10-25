@@ -1,0 +1,132 @@
+<!-- **************************************** -->
+<dom-module id="sample-firebase-header">
+  <template>
+    <style>
+      .header-menu-item {
+        margin-left: auto;
+      }
+    </style>
+    <paper-toolbar>
+      <div on-tap="reload">
+        Firebase Sample
+      </div>
+      <div class="header-menu-item">
+        <sample-firebase-header-menu user="{{loginUser}}"></sample-firebase-header-menu>
+      </div>
+    </paper-toolbar>
+  </template>
+  <script>
+    Polymer({
+      is: 'sample-firebase-header',
+      properties: {
+        loginUser: {
+          type: Object,
+          notify: true,
+        },
+      },
+      ready: function() {
+        this.loginUser = {
+          "name": "",
+          "email": "",
+        };
+      },
+      reload: function() {
+        location.reload(true);
+      }
+    });
+  </script>
+</dom-module>
+
+<!-- **************************************** -->
+<dom-module id="sample-firebase-header-menu">
+  <template>
+    <paper-menu-button horizontal-align="right">
+      <paper-icon-button icon="menu" class="dropdown-trigger"></paper-icon-button>
+      <paper-menu class="dropdown-content">
+        <paper-item on-tap="signInWithGoogle">
+          Googleでログイン
+        </paper-item>
+        <paper-item on-tap="signInWithFacebook">
+          Facebookでログイン
+        </paper-item>
+        <paper-item on-tap="singOut">
+          SignOut
+        </paper-item>
+      </paper-menu>
+    </paper-menu-button>
+    <paper-toast id="toast" text="{{error}}" vertical-align="bottom"></paper-toast>
+  </template>
+  <script>
+    Polymer({
+      is: 'sample-firebase-header-menu',
+      properties: {
+        user: {
+          type: Object,
+          notify: true,
+        },
+      },
+      ready: function() {
+        var polymer = this;
+
+        firebase.auth().onAuthStateChanged(function(user) {
+          if (user) {
+            polymer.setUser(user);
+          } else {
+            console.log('ログインしてないユーザー');
+            polymer.setUser({
+              "name": "",
+              "email": ""
+            });
+          }
+        });
+      },
+      setUser: function(user) {
+        this.user = {
+          "name": user.displayName,
+          "email": user.email,
+        };
+
+        console.log('set login user', this.user);
+      },
+      signInWithGoogle: function() {
+        var provider = new firebase.auth.GoogleAuthProvider();
+        this.showLoginPage(provider);
+      },
+      signInWithFacebook: function() {
+        var provider = new firebase.auth.FacebookAuthProvider();
+        this.showLoginPage(provider);
+      },
+      singOut: function() {
+        var polymer = this;
+
+        firebase.auth().signOut().then(function() {
+          console.log('signoutしました');
+          location.reload(true);
+        }, function(error) {
+          console.log('error signout', error);
+          polymer.showErrorMessage({
+            "message": "SignOutでエラーが発生しました"
+          });
+        });
+      },
+      showLoginPage: function(provider) {
+        var polymer = this;
+
+        firebase.auth()
+          .signInWithPopup(provider)
+          .then(function(result) {
+            polymer.setUser(result.user);
+          }).catch(function(error) {
+            console.log('error OAuth', error);
+            polymer.showErrorMessage({
+              "message": "ログインエラーが発生しました"
+            });
+          });
+      },
+      showErrorMessage: function(data) {
+        this.error = data.message;
+        this.$.toast.open();
+      }
+    });
+  </script>
+</dom-module>

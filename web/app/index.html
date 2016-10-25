@@ -24,32 +24,12 @@
     <link rel="import" href="elements/elements.html">
     <!-- For shared styles, shared-styles.html import in elements.html -->
     <style is="custom-style" include="shared-styles"></style>
-  </head>
-  <body>
-    <paper-scroll-header-panel class="flex">
-      <paper-toolbar>
-        <div>Firebase Sample</div>
-      </paper-toolbar>
-    </paper-scroll-header-panel>
-    <paper-menu>
-      <paper-item>Item 1</paper-item>
-      <paper-item>Item 2</paper-item>
-    </paper-menu>
-    <hr />
-    <ul>
-      <li>
-        <a href="/html/auth/login.html">Auth</a>
-      </li>
-    </ul>
-  </body>
-
-  <script src="https://www.gstatic.com/firebasejs/3.0.2/firebase.js"></script>
-  <script src="https://apis.google.com/js/platform.js" async defer></script>
-  <!-- build:js script/vendor.js -->
-  <script src="/bower_components/jQuery/dist/jquery.min.js"></script>
-  <!-- endbuild -->
-  <script>
-    $(function() {
+    <!-- build:js script/vendor.js -->
+    <script src="/bower_components/jQuery/dist/jquery.min.js"></script>
+    <!-- endbuild -->
+    <script src="https://www.gstatic.com/firebasejs/3.0.2/firebase.js"></script>
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
+    <script>
       firebase.initializeApp({
         apiKey: "AIzaSyCSlxvMkNEwPr5E9PJAIqnSuPQRA3MltT8",
         authDomain: "sample-firebase-c08bf.firebaseapp.com",
@@ -57,6 +37,31 @@
         storageBucket: "sample-firebase-c08bf.appspot.com",
         messagingSenderId: "442016854371"
       });
-    });
-  </script>
+    </script>
+  </head>
+  <body class="fullbleed layout vertical">
+    <paper-scroll-header-panel class="flex">
+      <sample-firebase-content></sample-firebase-content>
+    </paper-scroll-header-panel>
+  </body>
+
+  <dom-module id="sample-firebase-content">
+    <template>
+      <sample-firebase-header login-user="{{user}}"></sample-firebase-header>
+      <div class="content">
+        <paper-input label="name" value="{{user.name}}" readonly></paper-input>
+        <paper-input label="email" value="{{user.email}}" readonly></paper-input>
+      </div>
+    </template>
+    <script>
+      Polymer({
+        is: 'sample-firebase-content',
+        properties: {
+          user: {
+            type: Object,
+          }
+        },
+      })
+    </script>
+  </dom-module>
 </html>
